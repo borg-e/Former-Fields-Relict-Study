@@ -11,7 +11,7 @@ Link to the map : https://borg-e.github.io/Former-Fields-Relict-Study/
 
 ---
 
-# Map Overview
+## Map Overview
 
 The resulting map provides a state-of-the-art overview of the documented distribution of Former Field Relics (FFRs). However, it should not be interpreted as a direct representation of their actual spatial distribution. Apparent gaps are highly likely to reflect research bias and uneven survey coverage rather than the true absence of FFRs.
 
