@@ -18,6 +18,6 @@ The resulting map provides a state-of-the-art overview of the documented distrib
 Whenever available, we used the polygons ("regional areas") or geographic coordinates ("sites") provided by the authors of the landforms or nearby localities. In a limited number of cases, polygons were digitized directly from maps published in the original articles.
 
 
-#Data
+# Data
 
 Each former field relict study is recorded in a specific attribute table (biblio_code.csv), which includes its source and additional metadata. Every source is assigned a unique reference code to ensure full traceability.
