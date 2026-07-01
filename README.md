@@ -20,4 +20,4 @@ Whenever available, we used the polygons ("regional areas") or geographic coordi
 
 # Data
 
-Each former field relict study is recorded in a specific attribute table <mark>biblio_code.csv</mark>, which includes its source and additional metadata. Every source is assigned a unique reference code to ensure full traceability.
+Each former field relict study is recorded in a specific attribute table  which includes its source and additional metadata. Every source is assigned a unique reference code to ensure full traceability (biblio_code.csv).
