@@ -128,6 +128,7 @@
     .info-auteur-lien { color: #094cb2; font-weight: 500; text-decoration: none; transition: color 0.2s ease; }
     .info-auteur-lien:hover { color: #00419d; text-decoration: underline; }
 
+    /* Range slider styling */
     input[type=range] {
         -webkit-appearance: none;
         width: 100%;
@@ -218,7 +219,7 @@
 <div class="bg-white/95 backdrop-blur-sm p-8 max-w-2xl w-full mx-4 shadow-xl border border-surface-variant rounded-none relative">
 <h2 class="font-headline-lg text-2xl mb-4 text-on-surface">Former Fields Relicts: European synthesis Map</h2>
 <p class="font-body-md text-on-surface-variant mb-6 text-sm leading-relaxed">
-        Reconstructing the history of land use, and thereby assessing the ecological legacies associated with past practices, is a key prerequisite for effective environmental governance (Ellis, 2021). Former agricultural landforms —often organized within former field systems (FFS)— are widely preserved across Europe. Among the most common micro-topographies described in the literature are lynchets, terraces, ridge-and-furrow systems, stone walls and headland ridges. LiDAR has enabled numerous regional studies on landscape history and heritage, including vast areas now covered by forest. On the other hand, geoarchaeological surveys have provided an initial, though still incomplete, chronological framework. The scope aims to follow the historical diffusion of the plow, tracing its path from its Central European origins to Alsace and Lorraine (Haudricourt and Delamarre, 1988). Furthermore, it extends to the North-Western French openfields, spanning from the Paris Basin to the Beauce region, to ensure a comprehensive analysis of these traditional agricultural landscapes.
+        Reconstructing the history of land use, and thereby assessing the ecological legacies associated with past practices, is a key prerequisite for effective environmental governance (Ellis, 2021). Former agricultural landforms —often organized within former field systems (FFS)— are widely preserved across Europe. Among the most common micro-topographies described in the literature are lynchets, terraces, ridge-and-furrow systems, stone walls and headland ridges. LiDAR has enabled numerous regional studies on landscape history and heritage, including vast areas now covered by forest. On the other hand, geoarchaeological surveys have provided an initial, though still incomplete, chronological framework. This study encompasses the temperate transition zone where oceanic and continental influences met. The scope also aims to follow the historical diffusion of the plow, tracing its path from its Central European origins to Alsace and Lorraine (Haudricourt and Delamarre, 1988). Furthermore, it extends to the North-Western French openfields, spanning from the Paris Basin to the Beauce region, to ensure a comprehensive analysis of these traditional agricultural landscapes.
 </p>
 <div class="flex justify-end">
 <button class="bg-primary text-on-primary px-6 py-2 uppercase tracking-wide text-sm font-label-md hover:bg-on-primary-fixed-variant transition-colors rounded-none" onclick="document.getElementById('welcome-modal').style.display='none'">
@@ -236,7 +237,7 @@
 <div>
 <div id="legend">
 <div class="legend-item">
-<span class="color-box" onclick="toggleFilter('headland_ridges', event)" style="background:#ebdb84"></span>
+<span class="color-box" onclick="toggleFilter('headland_ridges', event)" style="background:#d8c971"></span>
 <span class="legend-text" onclick="showDefinition('headland_ridges')">Headland ridges</span>
 </div>
 <div class="legend-item">
@@ -257,8 +258,8 @@
 </div>
 <div class="h-px bg-surface-variant my-4"></div>
 <div class="legend-item">
-<span class="color-box" id="dot-vast" onclick="toggleVastAreas(event)" style="background:#094cb2; border-color: #00419d;"></span>
-<span class="legend-text text-on-surface-variant">Study areas (Vast Areas)</span>
+<input checked="" class="mr-3 h-4 w-4 rounded-none border-outline text-primary focus:ring-primary-container" id="dot-vast" onclick="toggleVastAreas(event)" type="checkbox"/>
+<span class="legend-text text-on-surface-variant">Regional study areas</span>
 </div>
 </div>
 </div>
@@ -322,7 +323,7 @@
 
     const map = L.map('map', { center: [48.8, 7.3], zoom: 5, zoomControl: false });
     
-    // Création de calques spécifiques et de leurs Canvas Renderers
+   
     map.createPane('polygonsPane');
     map.getPane('polygonsPane').style.zIndex = 400;
 
@@ -338,6 +339,7 @@
     
     const baseMaps = {
       "Satellite": esriWorldImagery
+      
     };
     
     L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
@@ -387,13 +389,17 @@
     }
 
     function getSourceHTML(props) {
-      const author = props.Source || "Auteur inconnu";
-      const code = props.biblio_code ? props.biblio_code.toString().trim() : null;
-      if (code && biblioMap.has(code)) {
-        return `<a href="${biblioMap.get(code)}" target="_blank" class="info-auteur-lien">${author} 🔗</a>`;
-      }
-      return `<span>${author}</span>`;
-    }
+  let author = props.Source || "Auteur inconnu";
+  if (props.Source === "Lidar_obs" && props._isPolygon && props.Source_) {
+    author += ` (${props.Source_})`;
+  }
+
+  const code = props.biblio_code ? props.biblio_code.toString().trim() : null;
+  if (code && biblioMap.has(code)) {
+    return `<a href="${biblioMap.get(code)}" target="_blank" class="info-auteur-lien">${author} 🔗</a>`;
+  }
+  return `<span>${author}</span>`;
+}
 
     function showDetails(props) {
       const panel = document.getElementById('info-panel');
@@ -537,7 +543,7 @@
         return { 
           color: baseColor, 
           weight: 1.5, 
-          fillColor: isStoneWall ? "url(#stone-wall-pattern)" : baseColor,
+          fillColor: isStoneWall ? "url(#stone-wall-pattern)" : baseColor, 
           fillOpacity: isStoneWall ? 0.7 : 0.7, 
           dashArray: '20' 
         };
@@ -545,8 +551,10 @@
       onEachFeature: (feature, layer) => {
         layer.on('click', (e) => {
           L.DomEvent.stopPropagation(e);
-          map.fitBounds(layer.getBounds(), { padding: [50, 50], maxZoom: 13 });
-          showDetails(feature.properties);
+          
+          
+          const propsWithFlag = { ...feature.properties, _isPolygon: true };
+          showDetails(propsWithFlag);
         });
       }
     });
@@ -781,7 +789,7 @@
       fetch('biblio_code.csv').then(r => r.ok ? r.text() : ""),
       fetch('bdd_ponct_wgs84.geojson').then(r => r.ok ? r.json() : null),
       fetch('europe_ne.geojson').then(r => r.ok ? r.json() : null),
-      fetch('bdd_gen_studiers_wgs842.geojson').then(r => r.ok ? r.json() : null)
+      fetch('bdd_gen_studies_wgs84.geojson').then(r => r.ok ? r.json() : null)
     ]).then(sources => {
 
       if (sources[0]) {
@@ -809,7 +817,7 @@
           const cat = getCategory(props.landform);
           const alt =  parseFloat(props._jalti) || 0;
           
-    
+          
           const icon = L.divIcon({
                         className: 'custom-diamond-wrapper',
                         html: `<div class="diamond-marker" style="background-color: ${colors[cat]};"></div>`,
@@ -854,7 +862,7 @@
                 });
             }
       
- 
+      
       if (sources[2]) {
         europePolygonsGeoJSON.addData(sources[2]);
         loadEuropeCentroids(sources[2]);
